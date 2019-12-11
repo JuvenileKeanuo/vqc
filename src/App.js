@@ -1,24 +1,108 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { useRouteMatch } from 'react-router-dom';
+
+import { makeStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+
+import Modeling from './pages/Modeling';
+import Tracing from './pages/Tracing';
+import GraphTest from './pages/GraphTest';
+import GraphChart from './components/GraphChart';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { setTitle } from './redux/actions';
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    flexGrow: 1,
+  },
+  paper: {
+    width: '500px',
+    overflowX: 'auto',
+  },
+  table: {
+    minWidth: 300,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+    color: '#000000',
+  },
+  appBar: {
+    background: '#9CCAF5',
+  },
+  box: {
+    background: '#000000',
+    width: '100px',
+    height: '100px',
+    position: 'absolute',
+    zIndex: '2',
+  },
+  chart: {},
+  board: {
+    position: 'relative',
+  },
+}));
 
 function App() {
+  const classes = useStyles();
+  let matches = {
+    index: useRouteMatch({
+      path: '/',
+      exact: true,
+    }),
+    home: useRouteMatch({
+      path: '/home',
+      strict: true,
+      sensitive: true,
+    }),
+    graphtest: useRouteMatch({
+      path: '/graph',
+      strict: true,
+      sensitive: true,
+    }),
+    graphori: useRouteMatch({
+      path: '/graphori',
+      strict: true,
+      sensitive: true,
+    }),
+    modeling: useRouteMatch({
+      path: '/modeling',
+      strict: true,
+      sensitive: true,
+    }),
+    traceabiliting: useRouteMatch({
+      path: '/tracing',
+      strict: true,
+      sensitive: true,
+    }),
+  };
+
+  const { barTitle } = useSelector(state => ({
+    barTitle: state.text.barTitle,
+  }));
+  const dispatch = useDispatch();
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <AppBar position="static" className={classes.appBar}>
+        <Toolbar>
+          <Typography variant="h6" className={classes.title}>
+            {barTitle}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      {matches.index && <p>index</p>}
+      {matches.home && <GraphChart />}
+      {matches.graphtest && <GraphTest />}
+      {matches.modeling && <Modeling />}
+      {matches.traceabiliting && <Tracing />}
     </div>
   );
 }
