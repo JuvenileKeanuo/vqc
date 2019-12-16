@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles, useTheme } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import { getData, postData } from '../utils/request';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { setTitle } from '../redux/actions';
+import {
+  setTitle,
+  modelStep1,
+  modelStep1Result,
+  modelStep2,
+  modelStep2Result,
+  modelStep3,
+  modelStep3Result,
+  modelStep4Result,
+} from '../redux/actions';
 
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
@@ -28,6 +38,14 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Chip from '@material-ui/core/Chip';
+import Input from '@material-ui/core/Input';
+
+const host = 'http://60.205.188.102:16009';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -62,6 +80,22 @@ const useStyles = makeStyles(theme => ({
   resize: {
     fontSize: 13,
   },
+  formControl: {
+    minWidth: 400,
+    maxWidth: 400,
+    height: 55,
+    marginBottom: 15,
+  },
+  chips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    margin: 2,
+  },
+  noLabel: {
+    marginTop: theme.spacing(3),
+  },
 }));
 
 function getSteps() {
@@ -75,9 +109,9 @@ function getStepContent(step) {
     case 1:
       return '说明：此处为Y类型指标的离散分界值，每一项均为必填项，点击下一步完成提交';
     case 2:
-      return 'This is the bit I really care about!';
+      return '';
     default:
-      return 'Unknown step';
+      return '';
   }
 }
 
@@ -165,6 +199,7 @@ function intersection(a, b) {
 function TransferList() {
   const classes = useStyles();
   const [checked, setChecked] = React.useState([]);
+
   const [left, setLeft] = React.useState([
     { id: 0, name: 'A' },
     { id: 1, name: 'B' },
@@ -177,6 +212,44 @@ function TransferList() {
     { id: 6, name: 'G' },
     { id: 7, name: 'H' },
   ]);
+
+  const dispatch = useDispatch();
+  const { step1, step1result } = useSelector(state => ({
+    step1: state.model.step1,
+    step1result: state.model.step1result,
+  }));
+
+  useEffect(() => {
+    async function fetchData() {
+      let a = await getData(`${host}/model/getvar/`);
+      dispatch(modelStep1(a));
+    }
+    fetchData();
+  }, [dispatch]);
+
+  useEffect(() => {
+    setLeft(step1.filter(item => item.type === 'x'));
+    setRight(step1.filter(item => item.type === 'y'));
+
+    dispatch(modelStep1Result(step1));
+  }, [step1]);
+
+  useEffect(() => {
+    let tempResult = [];
+    tempResult.push(
+      ...left.map(item => {
+        item.type = 'x';
+        return item;
+      }),
+      ...right.map(item => {
+        item.type = 'y';
+        return item;
+      })
+    );
+    dispatch(modelStep1Result(tempResult));
+  }, [left, right, dispatch]);
+
+  //load data
 
   const leftChecked = intersection(checked, left);
   const rightChecked = intersection(checked, right);
@@ -192,14 +265,10 @@ function TransferList() {
     }
 
     setChecked(newChecked);
+    console.log(step1result);
   };
 
-  const handleAllRight = () => {
-    setRight(right.concat(left));
-    setLeft([]);
-  };
-
-  const handleCheckedRight = () => {
+  const handleCheckedRight = async () => {
     setRight(right.concat(leftChecked));
     setLeft(not(left, leftChecked));
     setChecked(not(checked, leftChecked));
@@ -209,11 +278,6 @@ function TransferList() {
     setLeft(left.concat(rightChecked));
     setRight(not(right, rightChecked));
     setChecked(not(checked, rightChecked));
-  };
-
-  const handleAllLeft = () => {
-    setLeft(left.concat(right));
-    setRight([]);
   };
 
   const GreenCheckbox = withStyles({
@@ -247,7 +311,9 @@ function TransferList() {
                   checked={checked.indexOf(value) !== -1}
                   tabIndex={-1}
                   disableRipple
-                  inputProps={{ 'aria-labelledby': labelId }}
+                  inputProps={{
+                    'aria-labelledby': labelId,
+                  }}
                 />
               </ListItemIcon>
               <ListItemText id={labelId} primary={`${value.name}`} />
@@ -311,7 +377,38 @@ const rows = [
 ];
 
 function Step2Card() {
+  const dispatch = useDispatch();
   const classes = useStyles();
+  const { step1result, step2, step2result } = useSelector(state => ({
+    step1result: state.model.step1result,
+    step2: state.model.step2,
+    step2result: state.model.step2result,
+  }));
+
+  useEffect(() => {
+    async function fetchData() {
+      console.log(step1result);
+      let b = await postData(`${host}/model/classfication/`, step1result);
+      dispatch(modelStep2(b));
+    }
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    console.log('step2', step2);
+    dispatch(
+      modelStep2Result(
+        step2.map(item => {
+          item.disv = null;
+          return item;
+        })
+      )
+    );
+  }, [step2, dispatch]);
+
+  useEffect(() => {
+    console.log('changed', step2result);
+  }, [step2result]);
   return (
     <Paper className={classes.step2paper}>
       <Table className={classes.table} aria-label="simple table">
@@ -325,18 +422,23 @@ function Step2Card() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map(row => (
+          {step2.map(row => (
             <TableRow key={row.name}>
               <TableCell component="th" scope="row">
                 {row.name}
               </TableCell>
               <TableCell>
                 <TextField
-                  id="standard-basic"
                   placeholder="请输入"
                   className={classes.tableInput}
                   onChange={e => {
-                    console.log(e.target.value);
+                    //console.log(step2result);
+                    step2result.find(item => item.id === row.id).disv = Number(
+                      e.target.value
+                    );
+                    dispatch(
+                      modelStep2Result(JSON.parse(JSON.stringify(step2result)))
+                    );
                   }}
                   InputProps={{
                     classes: {
@@ -345,9 +447,9 @@ function Step2Card() {
                   }}
                 />
               </TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
+              <TableCell align="right">{row.min}</TableCell>
+              <TableCell align="right">{row.max}</TableCell>
+              <TableCell align="right">{row.dir}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -359,6 +461,264 @@ function Step2Card() {
 /**
  * step3
  */
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 400,
+    },
+  },
+};
+
+const names = ['Y类型指标1', 'Y类型指标2', 'Y类型指标3'];
+
+function getStyles(name, personName, theme) {
+  return {
+    fontWeight:
+      personName.indexOf(name) === -1
+        ? theme.typography.fontWeightRegular
+        : theme.typography.fontWeightMedium,
+  };
+}
+const step3rows = [
+  {
+    name: '哈哈哈',
+    value: ['1', '2'],
+    selected: [],
+  },
+  {
+    name: '嘤嘤嘤',
+    value: ['3', '4'],
+    selected: [],
+  },
+];
+
+function Step3Card() {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const { step2result, step3, step3result } = useSelector(state => ({
+    step2result: state.model.step2result,
+    step3: state.model.step3,
+    step3result: state.model.step3result,
+  }));
+  useEffect(() => {
+    console.log('step3 init', step2result);
+    async function fetchData() {
+      console.log('step3 fetching');
+      let data = await postData(`${host}/model/dis-y/`, step2result);
+      console.log(data.x);
+      let steptemp = data.x.map(item => {
+        item.selected = item.rel;
+        item.rel = data.y.map(item => item.name);
+        return item;
+      });
+      dispatch(modelStep3(steptemp));
+
+      dispatch(
+        modelStep3Result(
+          steptemp.map(item => {
+            item.rel = item.selected;
+            return item;
+          })
+        )
+      );
+    }
+    fetchData();
+  }, []);
+  const theme = useTheme();
+
+  const handleChange = (event, name) => {
+    //setPersonName(event.target.value);
+    console.log('change', name);
+    let tempRows = JSON.parse(JSON.stringify(step3));
+    tempRows.find(row => row.name === name).selected = event.target.value;
+    console.log('step3 changed', tempRows);
+    dispatch(modelStep3(tempRows));
+    let tempResult = JSON.parse(JSON.stringify(step3));
+    tempResult.find(row => row.name === name).rel = event.target.value;
+    dispatch(modelStep3Result(tempResult));
+  };
+
+  return (
+    <Paper className={classes.step2paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>指标名称</TableCell>
+            <TableCell>关联指标</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {step3.map(row => (
+            <TableRow key={row.name}>
+              <TableCell component="th" scope="row">
+                {row.name}
+              </TableCell>
+              <TableCell>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id={row.name}>
+                    {row.rel.length ? '请选择Y类型指标' : '空指标'}
+                  </InputLabel>
+                  <Select
+                    disabled={row.rel.length ? false : true}
+                    labelId={row.name}
+                    id={row.name}
+                    multiple
+                    value={row.selected}
+                    onChange={e => {
+                      console.log('before change', step3);
+                      handleChange(e, row.name);
+                      console.log('after change', step3);
+                    }}
+                    input={<Input id={row.name} />}
+                    renderValue={selected => {
+                      console.log(selected);
+                      return (
+                        <div className={classes.chips}>
+                          {selected.map(value => (
+                            <Chip
+                              key={value}
+                              label={value}
+                              className={classes.chip}
+                            />
+                          ))}
+                        </div>
+                      );
+                    }}
+                    MenuProps={MenuProps}
+                  >
+                    {row.rel.map(name => (
+                      <MenuItem
+                        key={name}
+                        value={name}
+                        style={getStyles(name, row.rel, theme)}
+                      >
+                        {name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Paper>
+  );
+}
+
+/**
+ * step4
+ */
+const step4Style = makeStyles(theme => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+}));
+function Step4Card() {
+  const classes = useStyles();
+  const theme = step4Style();
+
+  const dispatch = useDispatch();
+
+  const { step3result, step4result } = useSelector(state => ({
+    step3result: state.model.step3result,
+    step4result: state.model.step4result,
+  }));
+
+  useEffect(() => {
+    console.log('step4 init', step3result);
+    async function fetch() {
+      let a = {
+        x: step3result,
+      };
+      console.log(a);
+      await postData(`${host}/model/relation-x-y/`, a);
+    }
+    fetch();
+    dispatch(modelStep4Result({ method: 'k2-2', nodes: null }));
+  }, []);
+
+  useEffect(() => {
+    console.log('!!--!!', step4result);
+  }, [step4result]);
+
+  const [age, setAge] = useState('');
+  const [params, setParams] = useState([]);
+
+  const handleChange = event => {
+    dispatch(modelStep4Result({ ...step4result, method: event.target.value }));
+  };
+
+  return (
+    <Paper className={classes.step2paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>参数名称</TableCell>
+            <TableCell>参数数值</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow key="methods">
+            <TableCell component="th" scope="row">
+              方法选择
+            </TableCell>
+            <TableCell>
+              <FormControl className={classes.formControl}>
+                <InputLabel id="demo-simple-select-label">选择方法</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={step4result.method}
+                  onChange={handleChange}
+                >
+                  <MenuItem value={'k2-2'}>k2-2</MenuItem>
+                </Select>
+              </FormControl>
+            </TableCell>
+          </TableRow>
+          <TableRow key="methods1">
+            <TableCell component="th" scope="row">
+              每个节点最大父节点数
+            </TableCell>
+            <TableCell>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  id="standard-basic"
+                  label="节点数"
+                  onChange={e => {
+                    dispatch(
+                      modelStep4Result({
+                        ...step4result,
+                        nodes: Number(e.target.value),
+                      })
+                    );
+                  }}
+                />
+              </FormControl>
+            </TableCell>
+          </TableRow>
+          {params.map(row => (
+            <TableRow key={row.name}>
+              <TableCell component="th" scope="row">
+                {row.name}
+              </TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Paper>
+  );
+}
 
 function Modeling() {
   const classes = useStyles();
@@ -372,6 +732,21 @@ function Modeling() {
     }),
     step2: useRouteMatch({
       path: '/modeling/step2',
+      strict: true,
+      sensitive: true,
+    }),
+    step3: useRouteMatch({
+      path: '/modeling/step3',
+      strict: true,
+      sensitive: true,
+    }),
+    step4: useRouteMatch({
+      path: '/modeling/step4',
+      strict: true,
+      sensitive: true,
+    }),
+    graph: useRouteMatch({
+      path: '/modeling/graph',
       strict: true,
       sensitive: true,
     }),
@@ -395,8 +770,20 @@ function Modeling() {
       case 0:
         history.push('/modeling/step1');
         break;
-      default:
+      case 1:
         history.push('/modeling/step2');
+        break;
+      case 2:
+        history.push('/modeling/step3');
+        break;
+      case 3:
+        history.push('/modeling/step4');
+        break;
+      case 4:
+        history.push('/modelgraph');
+        break;
+      default:
+        history.push('/modeling/step1');
     }
   }, [activeStep, history]);
 
@@ -467,6 +854,8 @@ function Modeling() {
       </Stepper>
       {matches.step1 && <TransferList />}
       {matches.step2 && <Step2Card />}
+      {matches.step3 && <Step3Card />}
+      {matches.step4 && <Step4Card />}
       <div className={classes.stepCon}>
         {activeStep === steps.length ? (
           <div>

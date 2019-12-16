@@ -12,7 +12,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Modeling from './pages/Modeling';
 import Tracing from './pages/Tracing';
 import GraphTest from './pages/GraphTest';
-import GraphChart from './components/GraphChart';
+import ModelGraph from './pages/ModelGraph';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setTitle } from './redux/actions';
@@ -83,6 +83,11 @@ function App() {
       strict: true,
       sensitive: true,
     }),
+    modelgraph: useRouteMatch({
+      path: '/modelgraph',
+      strict: true,
+      sensitive: true,
+    }),
   };
 
   const { barTitle } = useSelector(state => ({
@@ -99,10 +104,11 @@ function App() {
         </Toolbar>
       </AppBar>
       {matches.index && <p>index</p>}
-      {matches.home && <GraphChart />}
+
       {matches.graphtest && <GraphTest />}
       {matches.modeling && <Modeling />}
       {matches.traceabiliting && <Tracing />}
+      {matches.modelgraph && <ModelGraph />}
     </div>
   );
 }

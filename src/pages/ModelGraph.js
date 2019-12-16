@@ -3,6 +3,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { ForceGraph2D } from 'react-force-graph';
+import { useDispatch, useSelector } from 'react-redux';
+import { getData, postData } from '../utils/request';
+import tableform from '../utils/table';
+
+const host = 'http://60.205.188.102:16009';
 
 const useStyles = makeStyles(theme => ({
   box: {
@@ -24,105 +29,43 @@ const useStyles = makeStyles(theme => ({
 
 function GraphTest() {
   const classes = useStyles();
-  const [nodes, setNodes] = useState([
-    {
-      id: 'X1',
-      color: '#000000',
-    },
-    { id: 'X2' },
-    { id: '中心节点' },
-    { id: 'X4' },
-    { id: 'X5' },
-    { id: 'X6' },
-    { id: 'X7' },
-    { id: 'X8' },
-    { id: 'X9' },
-    { id: 'X10' },
-    { id: 'X11' },
-    { id: 'X12' },
-    { id: 'Y1' },
-    { id: 'Y2' },
-    { id: 'Y3' },
-  ]);
+  const { step4result } = useSelector(state => ({
+    step4result: state.model.step4result,
+  }));
 
-  const [links, setLinks] = useState([
-    {
-      source: 'X2',
-      target: 'X1',
-    },
-    {
-      source: '中心节点',
-      target: 'X2',
-    },
-    {
-      source: 'X4',
-      target: '中心节点',
-    },
-    {
-      source: 'X5',
-      target: '中心节点',
-    },
-    {
-      source: 'X6',
-      target: '中心节点',
-    },
-    {
-      source: 'X7',
-      target: '中心节点',
-    },
-    {
-      source: 'X8',
-      target: '中心节点',
-    },
-    {
-      source: 'X9',
-      target: '中心节点',
-    },
-    {
-      source: 'X10',
-      target: '中心节点',
-    },
-    {
-      source: 'X11',
-      target: '中心节点',
-    },
-    {
-      source: 'X12',
-      target: '中心节点',
-    },
-    {
-      source: 'Y1',
-      target: 'X1',
-    },
-    {
-      source: 'Y1',
-      target: 'X4',
-    },
-    {
-      source: 'Y1',
-      target: 'X5',
-    },
-    {
-      source: 'Y2',
-      target: 'X9',
-    },
-    {
-      source: 'Y2',
-      target: 'X11',
-    },
-    {
-      source: 'Y3',
-      target: 'X12',
-    },
-    {
-      source: 'Y3',
-      target: 'Y2',
-    },
-  ]);
+  const [nodes, setNodes] = useState([{ id: 'hhh' }]);
+
+  const [links, setLinks] = useState([]);
   const [data, setData] = useState({
     nodes: nodes,
     links: links,
   });
+  useEffect(() => {
+    console.log('graph', step4result);
+    async function fetchData() {
+      let data1 = await postData(`${host}/model/construct/`, step4result);
+      console.log('graph data', data);
+
+      setData({
+        nodes: data1.dots.map(dot => ({
+          id: dot,
+          color: 'pink',
+          table: data1.tables.find(item => item.dot === dot)
+            ? data1.tables.find(item => item.dot === dot).table
+            : null,
+        })),
+        links: data1.edges,
+      });
+    }
+    fetchData();
+  }, [step4result]);
+
+  useEffect(() => {
+    console.log('final data', data);
+  }, [data]);
+  useEffect(() => {
+    console.log('cur nodes', nodes);
+  }, [nodes]);
   const [tempPos, setTempPos] = useState({
     x: 100,
     y: 100,
@@ -130,20 +73,6 @@ function GraphTest() {
   const fgRef = useRef();
   useEffect(() => {
     fgRef.current.zoom(4, 1000);
-    setNodes(() => {
-      let tempNodes = nodes;
-      tempNodes.forEach(node => {
-        node.color = 'pink';
-      });
-      return tempNodes;
-    });
-    setLinks(() => {
-      let tempLinks = links;
-      tempLinks.forEach(link => {
-        link.particles = 3;
-      });
-      return tempLinks;
-    });
   }, [fgRef]);
   function sleep() {
     return new Promise((resolve, reject) => {
@@ -205,16 +134,11 @@ function GraphTest() {
         nodeRelSize={8}
         linkWidth={1}
         linkCurvature={0.2}
-        nodeLabel={() => `<table border="1">
-<tr>
-<td>row 1, cell 1</td>
-<td>row 1, cell 2</td>
-</tr>
-<tr>
-<td>&nbsp;</td>
-<td>row 2, cell 2</td>
-</tr>
-</table>`}
+        nodeLabel={node => {
+          console.log('table sheet', node.table);
+          console.log('table node', tableform(node.table));
+          return tableform(node.table);
+        }}
         onNodeDragEnd={node => {
           node.fx = node.x;
           node.fy = node.y;
