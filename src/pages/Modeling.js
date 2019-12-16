@@ -517,9 +517,11 @@ function Step3Card() {
       });
       dispatch(modelStep3(steptemp));
 
+      let tempResult = JSON.parse(JSON.stringify(steptemp));
+
       dispatch(
         modelStep3Result(
-          steptemp.map(item => {
+          tempResult.map(item => {
             item.rel = item.selected;
             return item;
           })
