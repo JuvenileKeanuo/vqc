@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouteMatch, useParams } from 'react-router-dom';
 
 import clsx from 'clsx';
@@ -62,6 +62,12 @@ function Tracing() {
   const handleChange = event => {
     setPersonName(event.target.value);
   };
+
+  async function test() {}
+
+  useEffect(() => {
+    test();
+  });
 
   const handleChangeMultiple = event => {
     const { options } = event.target;

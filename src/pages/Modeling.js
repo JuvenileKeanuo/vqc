@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles, useTheme } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
@@ -28,6 +28,12 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Chip from '@material-ui/core/Chip';
+import Input from '@material-ui/core/Input';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -62,6 +68,22 @@ const useStyles = makeStyles(theme => ({
   resize: {
     fontSize: 13,
   },
+  formControl: {
+    minWidth: 400,
+    maxWidth: 400,
+    height: 55,
+    marginBottom: 15,
+  },
+  chips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    margin: 2,
+  },
+  noLabel: {
+    marginTop: theme.spacing(3),
+  },
 }));
 
 function getSteps() {
@@ -75,9 +97,9 @@ function getStepContent(step) {
     case 1:
       return '说明：此处为Y类型指标的离散分界值，每一项均为必填项，点击下一步完成提交';
     case 2:
-      return 'This is the bit I really care about!';
+      return '';
     default:
-      return 'Unknown step';
+      return '';
   }
 }
 
@@ -360,6 +382,204 @@ function Step2Card() {
  * step3
  */
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 400,
+    },
+  },
+};
+
+const names = ['Y类型指标1', 'Y类型指标2', 'Y类型指标3'];
+
+function getStyles(name, personName, theme) {
+  return {
+    fontWeight:
+      personName.indexOf(name) === -1
+        ? theme.typography.fontWeightRegular
+        : theme.typography.fontWeightMedium,
+  };
+}
+const step3rows = [
+  {
+    name: '哈哈哈',
+    value: ['1', '2'],
+    selected: [],
+  },
+  {
+    name: '嘤嘤嘤',
+    value: ['3', '4'],
+    selected: [],
+  },
+];
+
+function Step3Card() {
+  const classes = useStyles();
+  const theme = useTheme();
+  const [stepRows, setStepRows] = React.useState(step3rows);
+  const handleChange = (event, name) => {
+    //setPersonName(event.target.value);
+    setStepRows(() => {
+      let tempRows = JSON.parse(JSON.stringify(stepRows));
+      tempRows.find(row => row.name === name).selected = event.target.value;
+      return tempRows;
+    });
+    console.log(stepRows);
+  };
+
+  return (
+    <Paper className={classes.step2paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>指标名称</TableCell>
+            <TableCell>关联指标</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {stepRows.map(row => (
+            <TableRow key={row.name}>
+              <TableCell component="th" scope="row">
+                {row.name}
+              </TableCell>
+              <TableCell>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id={row.name}>请选择Y类型指标</InputLabel>
+                  <Select
+                    labelId={row.name}
+                    id={row.name}
+                    multiple
+                    value={row.selected}
+                    onChange={e => {
+                      handleChange(e, row.name);
+                    }}
+                    input={<Input id={row.name} />}
+                    renderValue={selected => {
+                      console.log(selected);
+                      return (
+                        <div className={classes.chips}>
+                          {selected.map(value => (
+                            <Chip
+                              key={value}
+                              label={value}
+                              className={classes.chip}
+                            />
+                          ))}
+                        </div>
+                      );
+                    }}
+                    MenuProps={MenuProps}
+                  >
+                    {row.value.map(name => (
+                      <MenuItem
+                        key={name}
+                        value={name}
+                        style={getStyles(name, row.value, theme)}
+                      >
+                        {name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Paper>
+  );
+}
+
+/**
+ * step4
+ */
+const step4Style = makeStyles(theme => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+}));
+function Step4Card() {
+  const classes = useStyles();
+  const theme = step4Style();
+
+  const [age, setAge] = useState('');
+  const [params, setParams] = useState([]);
+
+  const handleChange = event => {
+    setAge(event.target.value);
+  };
+
+  return (
+    <Paper className={classes.step2paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>参数名称</TableCell>
+            <TableCell>参数数值</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow key="methods">
+            <TableCell component="th" scope="row">
+              方法选择
+            </TableCell>
+            <TableCell>
+              <FormControl className={classes.formControl}>
+                <InputLabel id="demo-simple-select-label">选择方法</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={age}
+                  onChange={handleChange}
+                >
+                  <MenuItem value={10}>A</MenuItem>
+                  <MenuItem value={20}>B</MenuItem>
+                  <MenuItem value={30}>C</MenuItem>
+                </Select>
+              </FormControl>
+            </TableCell>
+          </TableRow>
+          <TableRow key="methods">
+            <TableCell component="th" scope="row">
+              每个节点最大父节点数
+            </TableCell>
+            <TableCell>
+              <FormControl className={classes.formControl}>
+                <InputLabel id="demo-simple-select-label">节点数</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={age}
+                  onChange={handleChange}
+                >
+                  <MenuItem value={10}>A</MenuItem>
+                  <MenuItem value={20}>B</MenuItem>
+                  <MenuItem value={30}>C</MenuItem>
+                </Select>
+              </FormControl>
+            </TableCell>
+          </TableRow>
+          {params.map(row => (
+            <TableRow key={row.name}>
+              <TableCell component="th" scope="row">
+                {row.name}
+              </TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Paper>
+  );
+}
+
 function Modeling() {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -372,6 +592,16 @@ function Modeling() {
     }),
     step2: useRouteMatch({
       path: '/modeling/step2',
+      strict: true,
+      sensitive: true,
+    }),
+    step3: useRouteMatch({
+      path: '/modeling/step3',
+      strict: true,
+      sensitive: true,
+    }),
+    step4: useRouteMatch({
+      path: '/modeling/step4',
       strict: true,
       sensitive: true,
     }),
@@ -395,8 +625,17 @@ function Modeling() {
       case 0:
         history.push('/modeling/step1');
         break;
-      default:
+      case 1:
         history.push('/modeling/step2');
+        break;
+      case 2:
+        history.push('/modeling/step3');
+        break;
+      case 3:
+        history.push('/modeling/step4');
+        break;
+      default:
+        history.push('/modeling/step1');
     }
   }, [activeStep, history]);
 
@@ -467,6 +706,8 @@ function Modeling() {
       </Stepper>
       {matches.step1 && <TransferList />}
       {matches.step2 && <Step2Card />}
+      {matches.step3 && <Step3Card />}
+      {matches.step4 && <Step4Card />}
       <div className={classes.stepCon}>
         {activeStep === steps.length ? (
           <div>
