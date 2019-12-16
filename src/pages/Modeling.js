@@ -44,11 +44,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
 import Input from '@material-ui/core/Input';
-<<<<<<< HEAD
 
 const host = 'http://60.205.188.102:16009';
-=======
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -501,7 +498,6 @@ const step3rows = [
 
 function Step3Card() {
   const classes = useStyles();
-<<<<<<< HEAD
   const dispatch = useDispatch();
   const { step2result, step3, step3result } = useSelector(state => ({
     step2result: state.model.step2result,
@@ -544,18 +540,6 @@ function Step3Card() {
     let tempResult = JSON.parse(JSON.stringify(step3));
     tempResult.find(row => row.name === name).rel = event.target.value;
     dispatch(modelStep3Result(tempResult));
-=======
-  const theme = useTheme();
-  const [stepRows, setStepRows] = React.useState(step3rows);
-  const handleChange = (event, name) => {
-    //setPersonName(event.target.value);
-    setStepRows(() => {
-      let tempRows = JSON.parse(JSON.stringify(stepRows));
-      tempRows.find(row => row.name === name).selected = event.target.value;
-      return tempRows;
-    });
-    console.log(stepRows);
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
   };
 
   return (
@@ -568,39 +552,26 @@ function Step3Card() {
           </TableRow>
         </TableHead>
         <TableBody>
-<<<<<<< HEAD
           {step3.map(row => (
-=======
-          {stepRows.map(row => (
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
             <TableRow key={row.name}>
               <TableCell component="th" scope="row">
                 {row.name}
               </TableCell>
               <TableCell>
                 <FormControl className={classes.formControl}>
-<<<<<<< HEAD
                   <InputLabel id={row.name}>
                     {row.rel.length ? '请选择Y类型指标' : '空指标'}
                   </InputLabel>
                   <Select
                     disabled={row.rel.length ? false : true}
-=======
-                  <InputLabel id={row.name}>请选择Y类型指标</InputLabel>
-                  <Select
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
                     labelId={row.name}
                     id={row.name}
                     multiple
                     value={row.selected}
                     onChange={e => {
-<<<<<<< HEAD
                       console.log('before change', step3);
                       handleChange(e, row.name);
                       console.log('after change', step3);
-=======
-                      handleChange(e, row.name);
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
                     }}
                     input={<Input id={row.name} />}
                     renderValue={selected => {
@@ -619,19 +590,11 @@ function Step3Card() {
                     }}
                     MenuProps={MenuProps}
                   >
-<<<<<<< HEAD
                     {row.rel.map(name => (
                       <MenuItem
                         key={name}
                         value={name}
                         style={getStyles(name, row.rel, theme)}
-=======
-                    {row.value.map(name => (
-                      <MenuItem
-                        key={name}
-                        value={name}
-                        style={getStyles(name, row.value, theme)}
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
                       >
                         {name}
                       </MenuItem>
@@ -663,7 +626,6 @@ function Step4Card() {
   const classes = useStyles();
   const theme = step4Style();
 
-<<<<<<< HEAD
   const dispatch = useDispatch();
 
   const { step3result, step4result } = useSelector(state => ({
@@ -688,17 +650,11 @@ function Step4Card() {
     console.log('!!--!!', step4result);
   }, [step4result]);
 
-=======
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
   const [age, setAge] = useState('');
   const [params, setParams] = useState([]);
 
   const handleChange = event => {
-<<<<<<< HEAD
     dispatch(modelStep4Result({ ...step4result, method: event.target.value }));
-=======
-    setAge(event.target.value);
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
   };
 
   return (
@@ -721,34 +677,20 @@ function Step4Card() {
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-<<<<<<< HEAD
                   value={step4result.method}
                   onChange={handleChange}
                 >
                   <MenuItem value={'k2-2'}>k2-2</MenuItem>
-=======
-                  value={age}
-                  onChange={handleChange}
-                >
-                  <MenuItem value={10}>A</MenuItem>
-                  <MenuItem value={20}>B</MenuItem>
-                  <MenuItem value={30}>C</MenuItem>
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
                 </Select>
               </FormControl>
             </TableCell>
           </TableRow>
-<<<<<<< HEAD
           <TableRow key="methods1">
-=======
-          <TableRow key="methods">
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
             <TableCell component="th" scope="row">
               每个节点最大父节点数
             </TableCell>
             <TableCell>
               <FormControl className={classes.formControl}>
-<<<<<<< HEAD
                 <TextField
                   id="standard-basic"
                   label="节点数"
@@ -761,19 +703,6 @@ function Step4Card() {
                     );
                   }}
                 />
-=======
-                <InputLabel id="demo-simple-select-label">节点数</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={age}
-                  onChange={handleChange}
-                >
-                  <MenuItem value={10}>A</MenuItem>
-                  <MenuItem value={20}>B</MenuItem>
-                  <MenuItem value={30}>C</MenuItem>
-                </Select>
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
               </FormControl>
             </TableCell>
           </TableRow>
@@ -816,14 +745,11 @@ function Modeling() {
       strict: true,
       sensitive: true,
     }),
-<<<<<<< HEAD
     graph: useRouteMatch({
       path: '/modeling/graph',
       strict: true,
       sensitive: true,
     }),
-=======
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
   };
   let history = useHistory();
 
@@ -853,12 +779,9 @@ function Modeling() {
       case 3:
         history.push('/modeling/step4');
         break;
-<<<<<<< HEAD
       case 4:
         history.push('/modelgraph');
         break;
-=======
->>>>>>> 307417be037cccc60ce24b10dd28fe8d1b3eb2ee
       default:
         history.push('/modeling/step1');
     }

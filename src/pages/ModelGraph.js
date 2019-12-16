@@ -54,7 +54,7 @@ function GraphTest() {
             ? data1.tables.find(item => item.dot === dot).table
             : null,
         })),
-        links: data1.edges,
+        links: data1.edges.map(item => ({ ...item, particles: 4 })),
       });
     }
     fetchData();
@@ -117,7 +117,7 @@ function GraphTest() {
         linkDirectionalParticles={link => link.particles}
         onNodeClick={(node, event) => {
           console.log(node);
-          changeColor(['Y3', 'Y2', 'X11', '中心节点']);
+          //changeColor(['Y3', 'Y2', 'X11', '中心节点']);
         }}
         onNodeHover={(node, prevNode) => {
           console.log(node);
@@ -126,9 +126,6 @@ function GraphTest() {
           console.log(prevNode);
         }}
         linkDirectionalParticleWidth={link => {
-          if (link.index === 1) {
-            return 0;
-          }
           return 2;
         }}
         nodeRelSize={8}
@@ -137,6 +134,7 @@ function GraphTest() {
         nodeLabel={node => {
           console.log('table sheet', node.table);
           console.log('table node', tableform(node.table));
+          console.log('stringstring', JSON.stringify(node.table));
           return tableform(node.table);
         }}
         onNodeDragEnd={node => {

@@ -1,4 +1,11 @@
 function tableform(dimensionI) {
+  dimensionI.forEach((dim, i) => {
+    dim.forEach((element, j) => {
+      if (!element) {
+        dimensionI[i][j] = '&nbsp';
+      }
+    });
+  });
   if (dimensionI[0][0]) {
     let string =
       '<table border="1px solid #E0E0E0" style="font-style:SimHei; border:hidden; border-collapse:collapse; color: #424242; background:#F5F5F5;";>';
