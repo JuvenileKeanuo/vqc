@@ -9,6 +9,8 @@ import {
   MODEL_STEP_3_RESULT,
   MODEL_STEP_4,
   MODEL_STEP_4_RESULT,
+  TRACING_STEP_1_RESULT,
+  TRACING_STEP_1,
 } from './actionTypes';
 
 export const addCount = count => ({
@@ -76,6 +78,20 @@ export const modelStep4 = data => ({
 
 export const modelStep4Result = data => ({
   type: MODEL_STEP_4_RESULT,
+  payload: {
+    data,
+  },
+});
+
+export const tracingStep1 = data => ({
+  type: TRACING_STEP_1,
+  payload: {
+    data,
+  },
+});
+
+export const tracingStep1Result = data => ({
+  type: TRACING_STEP_1_RESULT,
   payload: {
     data,
   },

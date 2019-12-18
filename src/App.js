@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { useRouteMatch, useHistory } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -13,11 +13,15 @@ import Modeling from './pages/Modeling';
 import Tracing from './pages/Tracing';
 import GraphTest from './pages/GraphTest';
 import ModelGraph from './pages/ModelGraph';
+import Home from './pages/Home';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setTitle } from './redux/actions';
 
 const useStyles = makeStyles(theme => ({
+  App: {
+    minWidth: 1300,
+  },
   root: {
     flexGrow: 1,
   },
@@ -36,6 +40,7 @@ const useStyles = makeStyles(theme => ({
     color: '#000000',
   },
   appBar: {
+    minWidth: 1300,
     background: '#9CCAF5',
   },
   box: {
@@ -93,18 +98,26 @@ function App() {
   const { barTitle } = useSelector(state => ({
     barTitle: state.text.barTitle,
   }));
+  const history = useHistory();
   const dispatch = useDispatch();
   return (
     <div className="App">
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            {barTitle}
-          </Typography>
+          <Button>
+            <Typography
+              variant="h6"
+              className={classes.title}
+              onClick={() => {
+                history.push('/');
+              }}
+            >
+              {barTitle}
+            </Typography>
+          </Button>
         </Toolbar>
       </AppBar>
-      {matches.index && <p>index</p>}
-
+      {matches.index && <Home />}
       {matches.graphtest && <GraphTest />}
       {matches.modeling && <Modeling />}
       {matches.traceabiliting && <Tracing />}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 
 import { makeStyles, withStyles, useTheme } from '@material-ui/core/styles';
@@ -722,6 +722,14 @@ function Step4Card() {
   );
 }
 
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 function Modeling() {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -766,6 +774,9 @@ function Modeling() {
       setIsTitleChanged(true);
     }
   });
+
+  const prevStep = usePrevious(activeStep);
+  console.log('prevstep', prevStep);
 
   useEffect(() => {
     switch (activeStep) {
