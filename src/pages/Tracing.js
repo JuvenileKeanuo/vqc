@@ -149,51 +149,78 @@ function Step1Card() {
   return (
     <Paper className={classes.step2paper}>
       <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          {step1.map((row, rowIndex) => {
+            if (rowIndex === 0)
+              return (
+                <TableRow key={row.name}>
+                  {row.map((col, colIndex) => {
+                    return (
+                      <TableCell component="th" scope="row">
+                        {col}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+          })}
+        </TableHead>
         <TableBody>
-          {step1.map(row => (
-            <TableRow key={row.name}>
-              {row.map((col, colIndex) => {
-                if (colIndex === row.length - 1) {
-                  return (
-                    <TableCell component="th" scope="row">
-                      {col === 1 ? (
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => {
-                            dispatch(tracingStep1Result(row));
-                            history.push('/tracing/step2');
-                          }}
+          {step1.map((row, rowIndex) => {
+            if (rowIndex !== 0)
+              return (
+                <TableRow key={row.name}>
+                  {row.map((col, colIndex) => {
+                    if (colIndex === row.length - 1) {
+                      return (
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          style={{ width: 100 }}
                         >
-                          开始溯源
-                        </Button>
-                      ) : (
-                        <Button variant="outlined" color="primary" disabled>
-                          开始溯源
-                        </Button>
-                      )}
-                    </TableCell>
-                  );
-                }
-                if (colIndex === row.length - 2) {
-                  return (
-                    <TableCell component="th" scope="row">
-                      {col === 0 ? (
-                        '未异常'
-                      ) : (
-                        <p style={{ color: 'red' }}>发现异常</p>
-                      )}
-                    </TableCell>
-                  );
-                }
-                return (
-                  <TableCell component="th" scope="row">
-                    {col}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
+                          {col === 1 ? (
+                            <Button
+                              variant="outlined"
+                              color="primary"
+                              onClick={() => {
+                                dispatch(tracingStep1Result(row));
+                                history.push('/tracing/step2');
+                              }}
+                            >
+                              开始溯源
+                            </Button>
+                          ) : (
+                            <Button variant="outlined" color="primary" disabled>
+                              开始溯源
+                            </Button>
+                          )}
+                        </TableCell>
+                      );
+                    }
+                    if (colIndex === row.length - 2) {
+                      return (
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          style={{ width: 60 }}
+                        >
+                          {col === 0 ? (
+                            '未异常'
+                          ) : (
+                            <p style={{ color: 'red' }}>发现异常</p>
+                          )}
+                        </TableCell>
+                      );
+                    }
+                    return (
+                      <TableCell component="th" scope="row">
+                        {col}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+          })}
         </TableBody>
       </Table>
     </Paper>

@@ -72,6 +72,23 @@ export default function SimpleCard() {
           </Button>
         </CardActions>
       </Card>
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography variant="h5" component="h2">
+            协商
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <Button
+            size="small"
+            onClick={() => {
+              history.push('/negotiate/step1');
+            }}
+          >
+            进入
+          </Button>
+        </CardActions>
+      </Card>
     </div>
   );
 }

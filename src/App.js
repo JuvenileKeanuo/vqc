@@ -14,6 +14,7 @@ import Tracing from './pages/Tracing';
 import GraphTest from './pages/GraphTest';
 import ModelGraph from './pages/ModelGraph';
 import Home from './pages/Home';
+import Negotiate from './pages/Negotiate';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setTitle } from './redux/actions';
@@ -93,6 +94,11 @@ function App() {
       strict: true,
       sensitive: true,
     }),
+    negotiate: useRouteMatch({
+      path: '/negotiate',
+      strict: true,
+      sensitive: true,
+    }),
   };
 
   const { barTitle } = useSelector(state => ({
@@ -122,6 +128,7 @@ function App() {
       {matches.modeling && <Modeling />}
       {matches.traceabiliting && <Tracing />}
       {matches.modelgraph && <ModelGraph />}
+      {matches.negotiate && <Negotiate />}
     </div>
   );
 }
