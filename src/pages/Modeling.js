@@ -516,17 +516,6 @@ function Step3Card() {
         return item;
       });
       dispatch(modelStep3(steptemp));
-
-      let tempResult = JSON.parse(JSON.stringify(steptemp));
-
-      dispatch(
-        modelStep3Result(
-          tempResult.map(item => {
-            item.rel = item.selected;
-            return item;
-          })
-        )
-      );
     }
     fetchData();
   }, []);
@@ -534,15 +523,25 @@ function Step3Card() {
 
   const handleChange = (event, name) => {
     //setPersonName(event.target.value);
-    console.log('change', name);
     let tempRows = JSON.parse(JSON.stringify(step3));
     tempRows.find(row => row.name === name).selected = event.target.value;
-    console.log('step3 changed', tempRows);
+    console.log('step3 changed status', tempRows);
     dispatch(modelStep3(tempRows));
-    let tempResult = JSON.parse(JSON.stringify(step3));
-    tempResult.find(row => row.name === name).rel = event.target.value;
-    dispatch(modelStep3Result(tempResult));
   };
+
+  useEffect(() => {
+    let tempStep3 = JSON.parse(JSON.stringify(step3));
+    for (let item of tempStep3) {
+      item.rel = item.selected;
+      delete item.selected;
+    }
+    dispatch(modelStep3Result(tempStep3));
+  }, [step3]);
+
+  useEffect(() => {
+    console.log('-----------------result changed');
+    console.log('result', step3result);
+  }, [step3result]);
 
   return (
     <Paper className={classes.step2paper}>
@@ -571,13 +570,10 @@ function Step3Card() {
                     multiple
                     value={row.selected}
                     onChange={e => {
-                      console.log('before change', step3);
                       handleChange(e, row.name);
-                      console.log('after change', step3);
                     }}
                     input={<Input id={row.name} />}
                     renderValue={selected => {
-                      console.log(selected);
                       return (
                         <div className={classes.chips}>
                           {selected.map(value => (
