@@ -50,6 +50,7 @@ import Chip from '@material-ui/core/Chip';
 import Input from '@material-ui/core/Input';
 
 const host = 'http://60.205.188.102:16010';
+// const host = 'http://127.0.0.1:8000';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -149,82 +150,64 @@ function Step1Card() {
   return (
     <Paper className={classes.step2paper}>
       <Table className={classes.table} aria-label="simple table">
-        <TableHead>
-          {step1.map((row, rowIndex) => {
-            if (rowIndex === 0)
-              return (
-                <TableRow key={row.name}>
-                  {row.map((col, colIndex) => {
-                    return (
-                      <TableCell component="th" scope="row">
-                        {col}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-          })}
-        </TableHead>
         <TableBody>
-          {step1.map((row, rowIndex) => {
-            if (rowIndex !== 0)
-              return (
-                <TableRow key={row.name}>
-                  {row.map((col, colIndex) => {
-                    if (colIndex === row.length - 1) {
-                      return (
-                        <TableCell
-                          component="th"
-                          scope="row"
-                          style={{ width: 100 }}
+          {step1.map(row => (
+            <TableRow key={row.name}>
+              {row.map((col, colIndex) => {
+                if (colIndex === row.length - 1) {
+                  return (
+                    <TableCell component="th" scope="row">
+                      {col === 1 ? (
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          onClick={() => {
+                            dispatch(tracingStep1Result(row));
+                            history.push('/tracing/step2');
+                          }}
                         >
-                          {col === 1 ? (
-                            <Button
-                              variant="outlined"
-                              color="primary"
-                              onClick={() => {
-                                dispatch(tracingStep1Result(row));
-                                history.push('/tracing/step2');
-                              }}
-                            >
-                              开始溯源
-                            </Button>
-                          ) : (
-                            <Button variant="outlined" color="primary" disabled>
-                              开始溯源
-                            </Button>
-                          )}
-                        </TableCell>
-                      );
-                    }
-                    if (colIndex === row.length - 2) {
-                      return (
-                        <TableCell
-                          component="th"
-                          scope="row"
-                          style={{ width: 60 }}
-                        >
-                          {col === 0 ? (
-                            '未异常'
-                          ) : (
-                            <p style={{ color: 'red' }}>发现异常</p>
-                          )}
-                        </TableCell>
-                      );
-                    }
-                    return (
-                      <TableCell component="th" scope="row">
-                        {col}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-          })}
+                          开始溯源
+                        </Button>
+                      ) : (col === '溯源'?('溯源'): (
+                        <Button variant="outlined" color="primary" disabled>
+                          开始溯源
+                        </Button>
+                      ))}
+                    </TableCell>
+                  );
+                }
+                if (colIndex === row.length - 2) {
+                  return (
+                    <TableCell component="th" scope="row">
+                      {col === 0 ? (
+                        '未异常'
+                      ) : (col === '是否异常'?('是否异常'): (
+                        <p style={{ color: 'red' }}>发现异常</p>
+                      ))}
+                    </TableCell>
+                  );
+                }
+                return (
+                  <TableCell component="th" scope="row">
+                    {col}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </Paper>
   );
+}
+
+
+function rgbColor(){
+  let r = Math.floor(Math.random()*256);
+  let g = Math.floor(Math.random()*256);
+  let b = Math.floor(Math.random()*256);
+  let rgb = `rgb(${r},${g},${b})`;
+  return rgb;
 }
 
 function Step2Card() {
@@ -242,7 +225,7 @@ function Step2Card() {
       setData({
         nodes: data.dots.map(dot => ({
           id: dot.id,
-          color: 'pink',
+          color: 'green',
           table: data.tables.find(item => item.id === dot.id)
             ? data.tables.find(item => item.id === dot.id).table
             : null,
@@ -276,34 +259,38 @@ function Step2Card() {
       }, 1000);
     });
   }
+
   async function changeColor(array) {
-    const dots = array;
-    for (
-      let i = 0, dot = dots[i], nextDot = dots[i + 1];
-      i < dots.length;
-      dot = dots[++i], nextDot = dots[i + 1]
-    ) {
-      let tempNodes = data.nodes;
-      let curNode = tempNodes.find(item => item.id === dot);
-      curNode.color = '#000000';
-      fgRef.current.centerAt(curNode.x, curNode.y, 500);
-      setData(() => {
-        console.log('dot->nextDot', dot, nextDot);
-        let tempLinks = data.links;
-        let curLink = tempLinks.find(
-          link => link.source.id === dot && link.target.id === nextDot
-        );
-        console.log('curLink', curLink);
-        if (curLink) {
-          curLink.color = 'red';
-        }
-        //console.log(tempLinks);
-        return {
-          ...data,
-          links: tempLinks,
-        };
-      });
-      await sleep();
+    const dotss=array;
+    for(let j = 0,dots=dotss[j];j<dotss.length;dots = dotss[++j]){
+      let color =rgbColor();
+      for (
+        let i = 0, dot = dots[i], nextDot = dots[i + 1];
+        i < dots.length;
+        dot = dots[++i], nextDot = dots[i + 1]
+      ) {
+        let tempNodes = data.nodes;
+        let curNode = tempNodes.find(item => item.id === dot);
+        curNode.color = color;
+        fgRef.current.centerAt(curNode.x, curNode.y, 500);
+        setData(() => {
+          console.log('dot->nextDot', dot, nextDot);
+          let tempLinks = data.links;
+          let curLink = tempLinks.find(
+            link => link.source.id === dot && link.target.id === nextDot
+          );
+          console.log('curLink', curLink);
+          if (curLink) {
+            curLink.color = 'blue';
+          }
+          //console.log(tempLinks);
+          return {
+            ...data,
+            links: tempLinks,
+          };
+        });
+        await sleep();
+      }
     }
   }
   return (
@@ -311,22 +298,24 @@ function Step2Card() {
       <ForceGraph2D
         ref={fgRef}
         graphData={data}
-        linkDirectionalParticles={link => link.particles}
+        // linkDirectionalParticles={link => link.particles}
+        // linkDirectionalParticleSpeed={0}
+        linkDirectionalArrowLength={6}
         onNodeClick={(node, event) => {
           console.log(node);
         }}
-        onNodeHover={(node, prevNode) => {
-          console.log(node);
-          if (node) node.color = 'red';
-          if (prevNode) prevNode.color = 'pink';
-          console.log(prevNode);
-        }}
+        // onNodeHover={(node, prevNode) => {
+        //   console.log(node);
+        //   if (node) node.color = 'blue';
+        //   if (prevNode) prevNode.color = 'pink';
+        //   console.log(prevNode);
+        // }}
         linkDirectionalParticleWidth={link => {
           return 2;
         }}
         nodeRelSize={8}
-        linkWidth={1}
-        linkCurvature={0.2}
+        linkWidth={2}
+        linkCurvature={0.1}
         nodeLabel={node => {
           console.log('table sheet', node.table);
           console.log('table node', tableform(node.table));
