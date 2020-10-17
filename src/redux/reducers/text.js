@@ -1,7 +1,7 @@
 import { SET_TITLE } from '../actionTypes';
 
 const initialState = {
-  barTitle: 'VQC建模',
+  barTitle: '车间生产异常溯源系统',
 };
 
 export default function(state = initialState, action) {

@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouteMatch, useHistory } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react'
+import { useRouteMatch, useHistory } from 'react-router-dom'
 
-import { makeStyles, withStyles, useTheme } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { getData, postData } from '../utils/request';
+import { makeStyles, withStyles, useTheme } from '@material-ui/core/styles'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
+import { getData, postData } from '../utils/request'
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'
 import {
   setTitle,
   modelStep1,
@@ -16,38 +16,38 @@ import {
   modelStep3,
   modelStep3Result,
   modelStep4Result,
-} from '../redux/actions';
+} from '../redux/actions'
 
-import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import Check from '@material-ui/icons/Check';
-import StepConnector from '@material-ui/core/StepConnector';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import Chip from '@material-ui/core/Chip';
-import Input from '@material-ui/core/Input';
+import Grid from '@material-ui/core/Grid'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import Checkbox from '@material-ui/core/Checkbox'
+import Button from '@material-ui/core/Button'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import Stepper from '@material-ui/core/Stepper'
+import Step from '@material-ui/core/Step'
+import StepLabel from '@material-ui/core/StepLabel'
+import Check from '@material-ui/icons/Check'
+import StepConnector from '@material-ui/core/StepConnector'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import TextField from '@material-ui/core/TextField'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import FormControl from '@material-ui/core/FormControl'
+import Select from '@material-ui/core/Select'
+import Chip from '@material-ui/core/Chip'
+import Input from '@material-ui/core/Input'
 
-const host = 'http://60.205.188.102:16009';
+const host = 'http://60.205.188.102:16009'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     margin: 'auto',
   },
@@ -96,22 +96,22 @@ const useStyles = makeStyles(theme => ({
   noLabel: {
     marginTop: theme.spacing(3),
   },
-}));
+}))
 
 function getSteps() {
-  return ['第一步', '第二步', '第三步', '第四步'];
+  return ['第一步', '第二步', '第三步', '第四步']
 }
 
 function getStepContent(step) {
   switch (step) {
     case 0:
-      return '说明：上面展示为系统预设的指标类型，可以通过多选并转移自定义指标类型，点击下一步完成提交修改';
+      return '说明：上面展示为系统预设的指标类型，可以通过多选并转移自定义指标类型，点击下一步完成提交修改'
     case 1:
-      return '说明：此处为Y类型指标的离散分界值，每一项均为必填项，点击下一步完成提交';
+      return '说明：此处为Y类型指标的离散分界值，每一项均为必填项，点击下一步完成提交'
     case 2:
-      return '';
+      return ''
     default:
-      return '';
+      return ''
   }
 }
 
@@ -136,7 +136,7 @@ const QontoConnector = withStyles({
     borderTopWidth: 3,
     borderRadius: 1,
   },
-})(StepConnector);
+})(StepConnector)
 
 const useQontoStepIconStyles = makeStyles({
   root: {
@@ -159,11 +159,11 @@ const useQontoStepIconStyles = makeStyles({
     zIndex: 1,
     fontSize: 18,
   },
-});
+})
 
 function QontoStepIcon(props) {
-  const classes = useQontoStepIconStyles();
-  const { active, completed } = props;
+  const classes = useQontoStepIconStyles()
+  const { active, completed } = props
 
   return (
     <div
@@ -177,108 +177,108 @@ function QontoStepIcon(props) {
         <div className={classes.circle} />
       )}
     </div>
-  );
+  )
 }
 
 QontoStepIcon.propTypes = {
   active: PropTypes.bool,
   completed: PropTypes.bool,
-};
+}
 
 function not(a, b) {
-  return a.filter(value => b.indexOf(value) === -1);
+  return a.filter((value) => b.indexOf(value) === -1)
 }
 
 function intersection(a, b) {
-  return a.filter(value => b.indexOf(value) !== -1);
+  return a.filter((value) => b.indexOf(value) !== -1)
 }
 
 /**
  * step1
  */
 function TransferList() {
-  const classes = useStyles();
-  const [checked, setChecked] = React.useState([]);
+  const classes = useStyles()
+  const [checked, setChecked] = React.useState([])
 
   const [left, setLeft] = React.useState([
     { id: 0, name: 'A' },
     { id: 1, name: 'B' },
     { id: 2, name: 'C' },
     { id: 3, name: 'D' },
-  ]);
+  ])
   const [right, setRight] = React.useState([
     { id: 4, name: 'E' },
     { id: 5, name: 'F' },
     { id: 6, name: 'G' },
     { id: 7, name: 'H' },
-  ]);
+  ])
 
-  const dispatch = useDispatch();
-  const { step1, step1result } = useSelector(state => ({
+  const dispatch = useDispatch()
+  const { step1, step1result } = useSelector((state) => ({
     step1: state.model.step1,
     step1result: state.model.step1result,
-  }));
+  }))
 
   useEffect(() => {
     async function fetchData() {
-      let a = await getData(`${host}/model/getvar/`);
-      dispatch(modelStep1(a));
+      let a = await getData(`${host}/model/getvar/`)
+      dispatch(modelStep1(a))
     }
-    fetchData();
-  }, [dispatch]);
+    fetchData()
+  }, [dispatch])
 
   useEffect(() => {
-    setLeft(step1.filter(item => item.type === 'x'));
-    setRight(step1.filter(item => item.type === 'y'));
+    setLeft(step1.filter((item) => item.type === 'x'))
+    setRight(step1.filter((item) => item.type === 'y'))
 
-    dispatch(modelStep1Result(step1));
-  }, [step1]);
+    dispatch(modelStep1Result(step1))
+  }, [step1])
 
   useEffect(() => {
-    let tempResult = [];
+    let tempResult = []
     tempResult.push(
-      ...left.map(item => {
-        item.type = 'x';
-        return item;
+      ...left.map((item) => {
+        item.type = 'x'
+        return item
       }),
-      ...right.map(item => {
-        item.type = 'y';
-        return item;
+      ...right.map((item) => {
+        item.type = 'y'
+        return item
       })
-    );
-    dispatch(modelStep1Result(tempResult));
-  }, [left, right, dispatch]);
+    )
+    dispatch(modelStep1Result(tempResult))
+  }, [left, right, dispatch])
 
   //load data
 
-  const leftChecked = intersection(checked, left);
-  const rightChecked = intersection(checked, right);
+  const leftChecked = intersection(checked, left)
+  const rightChecked = intersection(checked, right)
 
-  const handleToggle = value => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
+  const handleToggle = (value) => () => {
+    const currentIndex = checked.indexOf(value)
+    const newChecked = [...checked]
 
     if (currentIndex === -1) {
-      newChecked.push(value);
+      newChecked.push(value)
     } else {
-      newChecked.splice(currentIndex, 1);
+      newChecked.splice(currentIndex, 1)
     }
 
-    setChecked(newChecked);
-    console.log(step1result);
-  };
+    setChecked(newChecked)
+    console.log(step1result)
+  }
 
   const handleCheckedRight = async () => {
-    setRight(right.concat(leftChecked));
-    setLeft(not(left, leftChecked));
-    setChecked(not(checked, leftChecked));
-  };
+    setRight(right.concat(leftChecked))
+    setLeft(not(left, leftChecked))
+    setChecked(not(checked, leftChecked))
+  }
 
   const handleCheckedLeft = () => {
-    setLeft(left.concat(rightChecked));
-    setRight(not(right, rightChecked));
-    setChecked(not(checked, rightChecked));
-  };
+    setLeft(left.concat(rightChecked))
+    setRight(not(right, rightChecked))
+    setChecked(not(checked, rightChecked))
+  }
 
   const GreenCheckbox = withStyles({
     root: {
@@ -288,7 +288,7 @@ function TransferList() {
       },
     },
     checked: {},
-  })(props => <Checkbox color="default" {...props} />);
+  })((props) => <Checkbox color="default" {...props} />)
 
   const customList = (items, title) => (
     <Paper className={classes.paper}>
@@ -296,8 +296,8 @@ function TransferList() {
         {title}
       </Typography>
       <List dense component="div" role="list">
-        {items.map(value => {
-          const labelId = `transfer-list-item-${value.id}-label`;
+        {items.map((value) => {
+          const labelId = `transfer-list-item-${value.id}-label`
 
           return (
             <ListItem
@@ -318,12 +318,12 @@ function TransferList() {
               </ListItemIcon>
               <ListItemText id={labelId} primary={`${value.name}`} />
             </ListItem>
-          );
+          )
         })}
         <ListItem />
       </List>
     </Paper>
-  );
+  )
 
   return (
     <Grid
@@ -360,7 +360,7 @@ function TransferList() {
       </Grid>
       <Grid item>{customList(right, '指标Y')}</Grid>
     </Grid>
-  );
+  )
 }
 
 /**
@@ -368,47 +368,47 @@ function TransferList() {
  */
 
 function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
+  return { name, calories, fat, carbs, protein }
 }
 
 const rows = [
   createData('下单等待时间', 159, 6.0, 24, '正向'),
   createData('商品价格', 237, 9.0, 37, '负向'),
-];
+]
 
 function Step2Card() {
-  const dispatch = useDispatch();
-  const classes = useStyles();
-  const { step1result, step2, step2result } = useSelector(state => ({
+  const dispatch = useDispatch()
+  const classes = useStyles()
+  const { step1result, step2, step2result } = useSelector((state) => ({
     step1result: state.model.step1result,
     step2: state.model.step2,
     step2result: state.model.step2result,
-  }));
+  }))
 
   useEffect(() => {
     async function fetchData() {
-      console.log(step1result);
-      let b = await postData(`${host}/model/classfication/`, step1result);
-      dispatch(modelStep2(b));
+      console.log(step1result)
+      let b = await postData(`${host}/model/classfication/`, step1result)
+      dispatch(modelStep2(b))
     }
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   useEffect(() => {
-    console.log('step2', step2);
+    console.log('step2', step2)
     dispatch(
       modelStep2Result(
-        step2.map(item => {
-          item.disv = null;
-          return item;
+        step2.map((item) => {
+          item.disv = null
+          return item
         })
       )
-    );
-  }, [step2, dispatch]);
+    )
+  }, [step2, dispatch])
 
   useEffect(() => {
-    console.log('changed', step2result);
-  }, [step2result]);
+    console.log('changed', step2result)
+  }, [step2result])
   return (
     <Paper className={classes.step2paper}>
       <Table className={classes.table} aria-label="simple table">
@@ -422,7 +422,7 @@ function Step2Card() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {step2.map(row => (
+          {step2.map((row) => (
             <TableRow key={row.name}>
               <TableCell component="th" scope="row">
                 {row.name}
@@ -431,14 +431,14 @@ function Step2Card() {
                 <TextField
                   placeholder="请输入"
                   className={classes.tableInput}
-                  onChange={e => {
+                  onChange={(e) => {
                     //console.log(step2result);
-                    step2result.find(item => item.id === row.id).disv = Number(
-                      e.target.value
-                    );
+                    step2result.find(
+                      (item) => item.id === row.id
+                    ).disv = Number(e.target.value)
                     dispatch(
                       modelStep2Result(JSON.parse(JSON.stringify(step2result)))
-                    );
+                    )
                   }}
                   InputProps={{
                     classes: {
@@ -455,15 +455,15 @@ function Step2Card() {
         </TableBody>
       </Table>
     </Paper>
-  );
+  )
 }
 
 /**
  * step3
  */
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
+const ITEM_HEIGHT = 48
+const ITEM_PADDING_TOP = 8
 const MenuProps = {
   PaperProps: {
     style: {
@@ -471,9 +471,9 @@ const MenuProps = {
       width: 400,
     },
   },
-};
+}
 
-const names = ['Y类型指标1', 'Y类型指标2', 'Y类型指标3'];
+const names = ['Y类型指标1', 'Y类型指标2', 'Y类型指标3']
 
 function getStyles(name, personName, theme) {
   return {
@@ -481,7 +481,7 @@ function getStyles(name, personName, theme) {
       personName.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
-  };
+  }
 }
 const step3rows = [
   {
@@ -494,55 +494,55 @@ const step3rows = [
     value: ['3', '4'],
     selected: [],
   },
-];
+]
 
 function Step3Card() {
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const { step2result, step3, step3result } = useSelector(state => ({
+  const classes = useStyles()
+  const dispatch = useDispatch()
+  const { step2result, step3, step3result } = useSelector((state) => ({
     step2result: state.model.step2result,
     step3: state.model.step3,
     step3result: state.model.step3result,
-  }));
+  }))
   useEffect(() => {
-    console.log('step3 init', step2result);
+    console.log('step3 init', step2result)
     async function fetchData() {
-      console.log('step3 fetching');
-      let data = await postData(`${host}/model/dis-y/`, step2result);
-      console.log(data.x);
-      let steptemp = data.x.map(item => {
-        item.selected = item.rel;
-        item.rel = data.y.map(item => item.name);
-        return item;
-      });
-      dispatch(modelStep3(steptemp));
+      console.log('step3 fetching')
+      let data = await postData(`${host}/model/dis-y/`, step2result)
+      console.log(data.x)
+      let steptemp = data.x.map((item) => {
+        item.selected = item.rel
+        item.rel = data.y.map((item) => item.name)
+        return item
+      })
+      dispatch(modelStep3(steptemp))
 
-      let tempResult = JSON.parse(JSON.stringify(steptemp));
+      let tempResult = JSON.parse(JSON.stringify(steptemp))
 
       dispatch(
         modelStep3Result(
-          tempResult.map(item => {
-            item.rel = item.selected;
-            return item;
+          tempResult.map((item) => {
+            item.rel = item.selected
+            return item
           })
         )
-      );
+      )
     }
-    fetchData();
-  }, []);
-  const theme = useTheme();
+    fetchData()
+  }, [])
+  const theme = useTheme()
 
   const handleChange = (event, name) => {
     //setPersonName(event.target.value);
-    console.log('change', name);
-    let tempRows = JSON.parse(JSON.stringify(step3));
-    tempRows.find(row => row.name === name).selected = event.target.value;
-    console.log('step3 changed', tempRows);
-    dispatch(modelStep3(tempRows));
-    let tempResult = JSON.parse(JSON.stringify(step3));
-    tempResult.find(row => row.name === name).rel = event.target.value;
-    dispatch(modelStep3Result(tempResult));
-  };
+    console.log('change', name)
+    let tempRows = JSON.parse(JSON.stringify(step3))
+    tempRows.find((row) => row.name === name).selected = event.target.value
+    console.log('step3 changed', tempRows)
+    dispatch(modelStep3(tempRows))
+    let tempResult = JSON.parse(JSON.stringify(step3))
+    tempResult.find((row) => row.name === name).rel = event.target.value
+    dispatch(modelStep3Result(tempResult))
+  }
 
   return (
     <Paper className={classes.step2paper}>
@@ -554,7 +554,7 @@ function Step3Card() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {step3.map(row => (
+          {step3.map((row) => (
             <TableRow key={row.name}>
               <TableCell component="th" scope="row">
                 {row.name}
@@ -570,17 +570,17 @@ function Step3Card() {
                     id={row.name}
                     multiple
                     value={row.selected}
-                    onChange={e => {
-                      console.log('before change', step3);
-                      handleChange(e, row.name);
-                      console.log('after change', step3);
+                    onChange={(e) => {
+                      console.log('before change', step3)
+                      handleChange(e, row.name)
+                      console.log('after change', step3)
                     }}
                     input={<Input id={row.name} />}
-                    renderValue={selected => {
-                      console.log(selected);
+                    renderValue={(selected) => {
+                      console.log(selected)
                       return (
                         <div className={classes.chips}>
-                          {selected.map(value => (
+                          {selected.map((value) => (
                             <Chip
                               key={value}
                               label={value}
@@ -588,11 +588,11 @@ function Step3Card() {
                             />
                           ))}
                         </div>
-                      );
+                      )
                     }}
                     MenuProps={MenuProps}
                   >
-                    {row.rel.map(name => (
+                    {row.rel.map((name) => (
                       <MenuItem
                         key={name}
                         value={name}
@@ -609,13 +609,13 @@ function Step3Card() {
         </TableBody>
       </Table>
     </Paper>
-  );
+  )
 }
 
 /**
  * step4
  */
-const step4Style = makeStyles(theme => ({
+const step4Style = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
@@ -623,41 +623,41 @@ const step4Style = makeStyles(theme => ({
   selectEmpty: {
     marginTop: theme.spacing(2),
   },
-}));
+}))
 function Step4Card() {
-  const classes = useStyles();
-  const theme = step4Style();
+  const classes = useStyles()
+  const theme = step4Style()
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const { step3result, step4result } = useSelector(state => ({
+  const { step3result, step4result } = useSelector((state) => ({
     step3result: state.model.step3result,
     step4result: state.model.step4result,
-  }));
+  }))
 
   useEffect(() => {
-    console.log('step4 init', step3result);
+    console.log('step4 init', step3result)
     async function fetch() {
       let a = {
         x: step3result,
-      };
-      console.log(a);
-      await postData(`${host}/model/relation-x-y/`, a);
+      }
+      console.log(a)
+      await postData(`${host}/model/relation-x-y/`, a)
     }
-    fetch();
-    dispatch(modelStep4Result({ method: 'k2-2', nodes: null }));
-  }, []);
+    fetch()
+    dispatch(modelStep4Result({ method: 'k2-2', nodes: null }))
+  }, [])
 
   useEffect(() => {
-    console.log('!!--!!', step4result);
-  }, [step4result]);
+    console.log('!!--!!', step4result)
+  }, [step4result])
 
-  const [age, setAge] = useState('');
-  const [params, setParams] = useState([]);
+  const [age, setAge] = useState('')
+  const [params, setParams] = useState([])
 
-  const handleChange = event => {
-    dispatch(modelStep4Result({ ...step4result, method: event.target.value }));
-  };
+  const handleChange = (event) => {
+    dispatch(modelStep4Result({ ...step4result, method: event.target.value }))
+  }
 
   return (
     <Paper className={classes.step2paper}>
@@ -696,19 +696,19 @@ function Step4Card() {
                 <TextField
                   id="standard-basic"
                   label="节点数"
-                  onChange={e => {
+                  onChange={(e) => {
                     dispatch(
                       modelStep4Result({
                         ...step4result,
                         nodes: Number(e.target.value),
                       })
-                    );
+                    )
                   }}
                 />
               </FormControl>
             </TableCell>
           </TableRow>
-          {params.map(row => (
+          {params.map((row) => (
             <TableRow key={row.name}>
               <TableCell component="th" scope="row">
                 {row.name}
@@ -719,20 +719,20 @@ function Step4Card() {
         </TableBody>
       </Table>
     </Paper>
-  );
+  )
 }
 
 function usePrevious(value) {
-  const ref = useRef();
+  const ref = useRef()
   useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
+    ref.current = value
+  })
+  return ref.current
 }
 
 function Modeling() {
-  const classes = useStyles();
-  const dispatch = useDispatch();
+  const classes = useStyles()
+  const dispatch = useDispatch()
 
   let matches = {
     step1: useRouteMatch({
@@ -760,89 +760,89 @@ function Modeling() {
       strict: true,
       sensitive: true,
     }),
-  };
-  let history = useHistory();
+  }
+  let history = useHistory()
 
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [skipped, setSkipped] = React.useState(new Set());
-  const [isTitleChanged, setIsTitleChanged] = React.useState(false);
-  const steps = getSteps();
+  const [activeStep, setActiveStep] = React.useState(0)
+  const [skipped, setSkipped] = React.useState(new Set())
+  const [isTitleChanged, setIsTitleChanged] = React.useState(false)
+  const steps = getSteps()
 
   useEffect(() => {
     if (!isTitleChanged) {
-      dispatch(setTitle('建模'));
-      setIsTitleChanged(true);
+      dispatch(setTitle('建模'))
+      setIsTitleChanged(true)
     }
-  });
+  })
 
-  const prevStep = usePrevious(activeStep);
-  console.log('prevstep', prevStep);
+  const prevStep = usePrevious(activeStep)
+  console.log('prevstep', prevStep)
 
   useEffect(() => {
     switch (activeStep) {
       case 0:
-        history.push('/modeling/step1');
-        break;
+        history.push('/modeling/step1')
+        break
       case 1:
-        history.push('/modeling/step2');
-        break;
+        history.push('/modeling/step2')
+        break
       case 2:
-        history.push('/modeling/step3');
-        break;
+        history.push('/modeling/step3')
+        break
       case 3:
-        history.push('/modeling/step4');
-        break;
+        history.push('/modeling/step4')
+        break
       case 4:
-        history.push('/modelgraph');
-        break;
+        history.push('/modelgraph')
+        break
       default:
-        history.push('/modeling/step1');
+        history.push('/modeling/step1')
     }
-  }, [activeStep, history]);
+  }, [activeStep, history])
 
-  const isStepOptional = step => {
-    return false;
-  };
+  const isStepOptional = (step) => {
+    return false
+  }
 
-  const isStepSkipped = step => {
-    return skipped.has(step);
-  };
+  const isStepSkipped = (step) => {
+    return skipped.has(step)
+  }
 
   const handleNext = () => {
-    let newSkipped = skipped;
+    let newSkipped = skipped
     if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
+      newSkipped = new Set(newSkipped.values())
+      newSkipped.delete(activeStep)
     }
 
-    setActiveStep(prevActiveStep => prevActiveStep + 1);
-    setSkipped(newSkipped);
-  };
+    setActiveStep((prevActiveStep) => prevActiveStep + 1)
+    setSkipped(newSkipped)
+  }
 
   const handleBack = () => {
-    setActiveStep(prevActiveStep => prevActiveStep - 1);
-  };
+    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+  }
 
   const handleSkip = () => {
     if (!isStepOptional(activeStep)) {
       // You probably want to guard against something like this,
       // it should never occur unless someone's actively trying to break something.
-      throw new Error("You can't skip a step that isn't optional.");
+      throw new Error("You can't skip a step that isn't optional.")
     }
 
-    setActiveStep(prevActiveStep => prevActiveStep + 1);
-    setSkipped(prevSkipped => {
-      const newSkipped = new Set(prevSkipped.values());
-      newSkipped.add(activeStep);
-      return newSkipped;
-    });
-  };
+    setActiveStep((prevActiveStep) => prevActiveStep + 1)
+    setSkipped((prevSkipped) => {
+      const newSkipped = new Set(prevSkipped.values())
+      newSkipped.add(activeStep)
+      return newSkipped
+    })
+  }
 
   const handleReset = () => {
-    setActiveStep(0);
-  };
+    setActiveStep(0)
+  }
 
-  const ColorButton = withStyles(theme => ({
+  const ColorButton = withStyles((theme) => ({
     root: {
       color: '#ffffff',
       backgroundColor: '#9ccaf5',
@@ -850,7 +850,7 @@ function Modeling() {
         backgroundColor: '#9ccaf5',
       },
     },
-  }))(Button);
+  }))(Button)
 
   return (
     <div className={classes.con}>
@@ -859,7 +859,7 @@ function Modeling() {
         activeStep={activeStep}
         connector={<QontoConnector />}
       >
-        {steps.map(label => (
+        {steps.map((label) => (
           <Step key={label}>
             <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
           </Step>
@@ -908,7 +908,7 @@ function Modeling() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
-export default Modeling;
+export default Modeling
